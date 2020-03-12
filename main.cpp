@@ -22,7 +22,7 @@ std::string MakeCSV(const std::vector<std::string>& libNames, const std::vector<
 	for (size_t classIndex = 0; classIndex < numClasses; ++classIndex) {
 		csvText << results[0][classIndex].name;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			csvText << "," << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.cyclesPerOp;
+			csvText << "," << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.minCyclesPerOp;
 		}
 		csvText << std::endl;
 	}
@@ -51,7 +51,7 @@ std::string MakeMarkdown(const std::vector<std::string>& libNames, const std::ve
 	for (size_t classIndex = 0; classIndex < numClasses; ++classIndex) {
 		markdownText << "|" << results[0][classIndex].name;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			markdownText << "|" << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.cyclesPerOp;
+			markdownText << "|" << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.minCyclesPerOp;
 		}
 		markdownText << "|" << std::endl;
 	}
@@ -67,11 +67,11 @@ std::vector<std::vector<Result>> NormalizeTimes(std::vector<std::vector<Result>>
 	for (size_t classIndex = 0; classIndex < numClasses; ++classIndex) {
 		double minCycles = 1e+100;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			double cycles = results[libIndex][classIndex].timing.cyclesPerOp;
+			double cycles = results[libIndex][classIndex].timing.minCyclesPerOp;
 			minCycles = std::min(cycles, minCycles);
 		}
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			double& cycles = results[libIndex][classIndex].timing.cyclesPerOp;
+			double& cycles = results[libIndex][classIndex].timing.minCyclesPerOp;
 			cycles /= minCycles;
 		}
 	}
@@ -88,21 +88,18 @@ int main() {
 	;
 	std::vector<std::vector<Result>> results(2);
 
-	std::cout << "[[ Mathter ]]\n\n";
+	std::cout << "[[ Mathter... ]]";
 	results[0] = Config<MathterWrapper>();
+	std::cout << std::endl;
 
-	for (const auto& result : results[0]) {
-		std::cout << result.name << "\t" << result.timing.cyclesPerOp << " cycles/op" << std::endl;
+	for (auto v : results[0]) {
+		std::cout << v.timing.numTimesRun << ", " << v.timing.size << ", " << v.timing.rep << "\n";
 	}
-	std::cout << "\n\n";
+	std::cout << std::endl;
 
-	std::cout << "[[ Eigen ]]\n\n";
+	std::cout << "[[ Eigen... ]]";
 	results[1] = Config<EigenWrapper>();
-
-	for (const auto& result : results[0]) {
-		std::cout << result.name << "\t" << result.timing.cyclesPerOp << " cycles/op" << std::endl;
-	}
-	std::cout << "\n\n";
+	std::cout << std::endl << "\n";
 
 	// Make a markdown
 	std::vector<std::string> libNames = {

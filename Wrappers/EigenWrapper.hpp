@@ -79,6 +79,9 @@ public:
 	template <class Mat>
 	static auto Trace(const Mat& arg);
 
+	template <class Mat>
+	static Mat Pow3M(const Mat& arg);
+
 	//----------------------------------
 	// Utility
 	//----------------------------------
@@ -175,6 +178,11 @@ auto EigenWrapper::Determinant(const Mat& arg) {
 template <class Mat>
 auto EigenWrapper::Trace(const Mat& arg) {
 	return arg.trace();
+}
+
+template <class Mat>
+Mat EigenWrapper::Pow3M(const Mat& arg) {
+	return arg * arg * arg;
 }
 
 template <class Vec>

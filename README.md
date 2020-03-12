@@ -24,7 +24,9 @@ Planning to include:
 
 **Interference**: The process is run with admin priviliges and sets itself to real-time priority on both Windows and Linux. On Windows, it additionally restricts processor affinity to the first core to prevent rescheduling.
 
-**Calculations**: An array for each of the left hand operand, right hand operand, and result is preallocated. The operation is executed in sequence for each element of the arrays. This is repeated several times.
+**Calculations**: There are two operations tested: binary and unary. For example, dot product and cross product are binary, matrix inverse is unary. Two or three arrays are prealloacted, which contain the one or two operands and the results. (I.e. the first operands are in their own contiguous array, and so on.) The array sizes range from 200 to 1000, and they are filled with random data. To do a *repetition*, the unary or binary operation is executed for each pair or triplet in the arrays. On the same dataset (without initializing the arrays again), a few hundred *repetitions* are executed. The amount of time it takes to do the repetitions is measured with ```chrono::high_resolution_clock```, and the number of cycles is measured with ```RDTSC```. This procedure is executed 500 times to collect 500 samples, and the fastest of the samples is selected to be shown in the tables below. The per-operation values are calculated as ```total_time / (arrayLen*repCount)```. The time for the random initialization is excluded.
+
+**Limitations**: The number in the tables represent instruction throughput, not latency. This is because many of the same operations are executed in a sequence, so the CPU may overlap these operations. Measuring operations in isolation would be very difficult and probably not accurate. Nonetheless, in a real application usually you do multiple of these operations right after the other, so the primary interest is throughput.
 
 # Tables
 
@@ -34,85 +36,87 @@ Clock cycles per operation:
 
 | |Mathter|Eigen|
 |:---|---:|---:|
-|Vec2 * Vec2|16.540|8.883|
-|Vec3 * Vec3|7.235|11.477|
-|Vec4 * Vec4|7.049|7.125|
-|Vec2 + Vec2|7.614|8.632|
-|Vec3 + Vec3|6.943|14.031|
-|Vec4 + Vec4|7.055|6.707|
-|Vec2 / Vec2|14.226|8.865|
-|Vec3 / Vec3|6.942|11.608|
-|Vec4 / Vec4|7.021|6.801|
-|Mat22 * Mat22|35.542|193.698|
-|Mat33 * Mat33|33.863|480.133|
-|Mat44 * Mat44|45.160|31.393|
-|Mat22 + Mat22|31.228|6.871|
-|Mat33 + Mat33|20.346|13.826|
-|Mat44 + Mat44|27.113|28.994|
-|Vec2 . Vec2|6.651|11.111|
-|Vec3 . Vec3|5.734|12.309|
-|Vec4 . Vec4|6.650|9.587|
-|Vec3 x Vec3|27.726|23.312|
-|norm(Vec2)|14.858|9.478|
-|norm(Vec3)|14.441|7.785|
-|norm(Vec4)|14.377|6.689|
-|normalize(Vec2)|24.228|20.437|
-|normalize(Vec3)|24.471|35.863|
-|normalize(Vec4)|25.366|13.804|
-|determinant(Mat22)|185.463|6.692|
-|determinant(Mat33)|311.563|13.330|
-|determinant(Mat44)|632.230|36.075|
-|inverse(Mat22)|438.344|24.035|
-|inverse(Mat33)|1198.225|108.170|
-|inverse(Mat44)|2457.401|128.114|
-|trace(Mat22)|6.597|7.400|
-|trace(Mat33)|6.290|10.773|
-|trace(Mat44)|8.864|13.760|
-|transpose(Mat22)|25.965|28.514|
-|transpose(Mat33)|37.438|33.057|
-|transpose(Mat44)|46.616|37.226|
+|Vec2 * Vec2|6.259|7.640|
+|Vec3 * Vec3|6.337|10.554|
+|Vec4 * Vec4|6.352|6.260|
+|Vec2 + Vec2|6.265|7.451|
+|Vec3 + Vec3|6.332|10.546|
+|Vec4 + Vec4|6.327|6.260|
+|Vec2 / Vec2|12.487|7.461|
+|Vec3 / Vec3|6.352|10.416|
+|Vec4 / Vec4|6.366|6.265|
+|Mat22 * Mat22|7.180|166.093|
+|Mat33 * Mat33|16.918|338.400|
+|Mat44 * Mat44|27.828|29.014|
+|Mat22 + Mat22|22.317|6.261|
+|Mat33 + Mat33|16.862|12.680|
+|Mat44 + Mat44|17.583|16.499|
+|Vec2 . Vec2|5.368|6.260|
+|Vec3 . Vec3|6.261|6.268|
+|Vec4 . Vec4|7.152|5.369|
+|Vec3 x Vec3|7.165|12.334|
+|norm(Vec2)|13.415|7.152|
+|norm(Vec3)|13.419|7.222|
+|norm(Vec4)|14.311|7.152|
+|normalize(Vec2)|22.673|18.761|
+|normalize(Vec3)|20.851|31.131|
+|normalize(Vec4)|22.372|12.555|
+|determinant(Mat22)|110.332|7.153|
+|determinant(Mat33)|207.674|9.988|
+|determinant(Mat44)|349.262|30.830|
+|inverse(Mat22)|364.728|21.416|
+|inverse(Mat33)|833.125|64.698|
+|inverse(Mat44)|1880.083|65.716|
+|trace(Mat22)|6.258|6.258|
+|trace(Mat33)|6.258|5.368|
+|trace(Mat44)|5.369|5.370|
+|transpose(Mat22)|20.527|20.521|
+|transpose(Mat33)|24.989|31.728|
+|transpose(Mat44)|31.245|31.236|
+|Mat44^3|48.097|61.315|
 
 Relative times:
 
 | |Mathter|Eigen|
 |:---|---:|---:|
-|Vec2 * Vec2|1.862|1.000|
-|Vec3 * Vec3|1.000|1.586|
-|Vec4 * Vec4|1.000|1.011|
-|Vec2 + Vec2|1.000|1.134|
-|Vec3 + Vec3|1.000|2.021|
-|Vec4 + Vec4|1.052|1.000|
-|Vec2 / Vec2|1.605|1.000|
-|Vec3 / Vec3|1.000|1.672|
-|Vec4 / Vec4|1.032|1.000|
-|Mat22 * Mat22|1.000|5.450|
-|Mat33 * Mat33|1.000|14.179|
-|Mat44 * Mat44|1.439|1.000|
-|Mat22 + Mat22|4.545|1.000|
-|Mat33 + Mat33|1.472|1.000|
-|Mat44 + Mat44|1.000|1.069|
-|Vec2 . Vec2|1.000|1.670|
-|Vec3 . Vec3|1.000|2.147|
-|Vec4 . Vec4|1.000|1.442|
-|Vec3 x Vec3|1.189|1.000|
-|norm(Vec2)|1.568|1.000|
-|norm(Vec3)|1.855|1.000|
-|norm(Vec4)|2.150|1.000|
-|normalize(Vec2)|1.185|1.000|
-|normalize(Vec3)|1.000|1.466|
-|normalize(Vec4)|1.838|1.000|
-|determinant(Mat22)|27.714|1.000|
-|determinant(Mat33)|23.372|1.000|
-|determinant(Mat44)|17.525|1.000|
-|inverse(Mat22)|18.238|1.000|
-|inverse(Mat33)|11.077|1.000|
-|inverse(Mat44)|19.181|1.000|
-|trace(Mat22)|1.000|1.122|
-|trace(Mat33)|1.000|1.713|
-|trace(Mat44)|1.000|1.552|
-|transpose(Mat22)|1.000|1.098|
-|transpose(Mat33)|1.133|1.000|
-|transpose(Mat44)|1.252|1.000|
+|Vec2 * Vec2|1.000|1.221|
+|Vec3 * Vec3|1.000|1.665|
+|Vec4 * Vec4|1.015|1.000|
+|Vec2 + Vec2|1.000|1.189|
+|Vec3 + Vec3|1.000|1.665|
+|Vec4 + Vec4|1.011|1.000|
+|Vec2 / Vec2|1.674|1.000|
+|Vec3 / Vec3|1.000|1.640|
+|Vec4 / Vec4|1.016|1.000|
+|Mat22 * Mat22|1.000|23.131|
+|Mat33 * Mat33|1.000|20.002|
+|Mat44 * Mat44|1.000|1.043|
+|Mat22 + Mat22|3.565|1.000|
+|Mat33 + Mat33|1.330|1.000|
+|Mat44 + Mat44|1.066|1.000|
+|Vec2 . Vec2|1.000|1.166|
+|Vec3 . Vec3|1.000|1.001|
+|Vec4 . Vec4|1.332|1.000|
+|Vec3 x Vec3|1.000|1.721|
+|norm(Vec2)|1.876|1.000|
+|norm(Vec3)|1.858|1.000|
+|norm(Vec4)|2.001|1.000|
+|normalize(Vec2)|1.209|1.000|
+|normalize(Vec3)|1.000|1.493|
+|normalize(Vec4)|1.782|1.000|
+|determinant(Mat22)|15.425|1.000|
+|determinant(Mat33)|20.791|1.000|
+|determinant(Mat44)|11.329|1.000|
+|inverse(Mat22)|17.031|1.000|
+|inverse(Mat33)|12.877|1.000|
+|inverse(Mat44)|28.609|1.000|
+|trace(Mat22)|1.000|1.000|
+|trace(Mat33)|1.166|1.000|
+|trace(Mat44)|1.000|1.000|
+|transpose(Mat22)|1.000|1.000|
+|transpose(Mat33)|1.000|1.270|
+|transpose(Mat44)|1.000|1.000|
+|Mat44^3|1.000|1.275|
 
 
 
@@ -126,82 +130,84 @@ Clock cycles per operation:
 
 | |Mathter|Eigen|
 |:---|---:|---:|
-|Vec2 * Vec2|20.233|9.075|
-|Vec3 * Vec3|7.257|14.418|
-|Vec4 * Vec4|7.992|9.569|
-|Vec2 + Vec2|23.016|9.187|
-|Vec3 + Vec3|7.262|12.809|
-|Vec4 + Vec4|10.717|7.682|
-|Vec2 / Vec2|22.652|8.743|
-|Vec3 / Vec3|7.885|13.753|
-|Vec4 / Vec4|8.308|8.733|
-|Mat22 * Mat22|14.296|19.332|
-|Mat33 * Mat33|26.839|56.623|
-|Mat44 * Mat44|40.470|58.262|
-|Mat22 + Mat22|12.302|18.746|
-|Mat33 + Mat33|18.324|20.632|
-|Mat44 + Mat44|32.082|26.609|
-|Vec2 . Vec2|12.433|8.760|
-|Vec3 . Vec3|15.800|10.342|
-|Vec4 . Vec4|12.787|11.790|
-|Vec3 x Vec3|38.264|19.814|
-|norm(Vec2)|9.562|9.552|
-|norm(Vec3)|10.087|7.886|
-|norm(Vec4)|12.039|6.726|
-|normalize(Vec2)|32.798|20.972|
-|normalize(Vec3)|23.150|29.883|
-|normalize(Vec4)|26.389|14.166|
-|determinant(Mat22)|134.329|6.525|
-|determinant(Mat33)|292.913|12.740|
-|determinant(Mat44)|433.465|33.808|
-|inverse(Mat22)|247.847|25.516|
-|inverse(Mat33)|978.178|55.277|
-|inverse(Mat44)|2203.311|74.222|
-|trace(Mat22)|5.714|6.772|
-|trace(Mat33)|6.658|5.598|
-|trace(Mat44)|7.702|7.450|
-|transpose(Mat22)|7.599|7.667|
-|transpose(Mat33)|39.613|29.337|
-|transpose(Mat44)|52.284|34.322|
+|Vec2 * Vec2|18.740|8.210|
+|Vec3 * Vec3|7.254|11.811|
+|Vec4 * Vec4|7.257|6.761|
+|Vec2 + Vec2|18.741|8.172|
+|Vec3 + Vec3|7.158|11.804|
+|Vec4 + Vec4|7.258|6.312|
+|Vec2 / Vec2|18.734|8.245|
+|Vec3 / Vec3|7.165|11.788|
+|Vec4 / Vec4|7.288|6.738|
+|Mat22 * Mat22|7.923|8.150|
+|Mat33 * Mat33|21.796|34.728|
+|Mat44 * Mat44|30.289|30.268|
+|Mat22 + Mat22|7.261|6.655|
+|Mat33 + Mat33|16.817|13.974|
+|Mat44 + Mat44|17.389|18.618|
+|Vec2 . Vec2|7.157|7.154|
+|Vec3 . Vec3|7.162|7.154|
+|Vec4 . Vec4|7.152|7.153|
+|Vec3 x Vec3|8.054|14.461|
+|norm(Vec2)|7.156|6.252|
+|norm(Vec3)|7.151|7.174|
+|norm(Vec4)|8.086|6.425|
+|normalize(Vec2)|21.410|18.738|
+|normalize(Vec3)|14.237|25.782|
+|normalize(Vec4)|15.161|12.636|
+|determinant(Mat22)|100.888|6.263|
+|determinant(Mat33)|192.117|12.495|
+|determinant(Mat44)|266.781|30.068|
+|inverse(Mat22)|189.279|23.194|
+|inverse(Mat33)|809.793|49.459|
+|inverse(Mat44)|1592.698|67.626|
+|trace(Mat22)|5.368|5.368|
+|trace(Mat33)|5.376|6.258|
+|trace(Mat44)|6.275|6.271|
+|transpose(Mat22)|7.153|6.348|
+|transpose(Mat33)|24.986|25.310|
+|transpose(Mat44)|31.242|31.309|
+|Mat44^3|49.491|47.438|
 
 Relative times:
 
 | |Mathter|Eigen|
 |:---|---:|---:|
-|Vec2 * Vec2|2.229|1.000|
-|Vec3 * Vec3|1.000|1.987|
-|Vec4 * Vec4|1.000|1.197|
-|Vec2 + Vec2|2.505|1.000|
-|Vec3 + Vec3|1.000|1.764|
-|Vec4 + Vec4|1.395|1.000|
-|Vec2 / Vec2|2.591|1.000|
-|Vec3 / Vec3|1.000|1.744|
-|Vec4 / Vec4|1.000|1.051|
-|Mat22 * Mat22|1.000|1.352|
-|Mat33 * Mat33|1.000|2.110|
-|Mat44 * Mat44|1.000|1.440|
-|Mat22 + Mat22|1.000|1.524|
-|Mat33 + Mat33|1.000|1.126|
-|Mat44 + Mat44|1.206|1.000|
-|Vec2 . Vec2|1.419|1.000|
-|Vec3 . Vec3|1.528|1.000|
-|Vec4 . Vec4|1.085|1.000|
-|Vec3 x Vec3|1.931|1.000|
-|norm(Vec2)|1.001|1.000|
-|norm(Vec3)|1.279|1.000|
-|norm(Vec4)|1.790|1.000|
-|normalize(Vec2)|1.564|1.000|
-|normalize(Vec3)|1.000|1.291|
-|normalize(Vec4)|1.863|1.000|
-|determinant(Mat22)|20.588|1.000|
-|determinant(Mat33)|22.992|1.000|
-|determinant(Mat44)|12.821|1.000|
-|inverse(Mat22)|9.713|1.000|
-|inverse(Mat33)|17.696|1.000|
-|inverse(Mat44)|29.685|1.000|
-|trace(Mat22)|1.000|1.185|
-|trace(Mat33)|1.189|1.000|
-|trace(Mat44)|1.034|1.000|
-|transpose(Mat22)|1.000|1.009|
-|transpose(Mat33)|1.350|1.000|
-|transpose(Mat44)|1.523|1.000|
+|Vec2 * Vec2|2.282|1.000|
+|Vec3 * Vec3|1.000|1.628|
+|Vec4 * Vec4|1.073|1.000|
+|Vec2 + Vec2|2.293|1.000|
+|Vec3 + Vec3|1.000|1.649|
+|Vec4 + Vec4|1.150|1.000|
+|Vec2 / Vec2|2.272|1.000|
+|Vec3 / Vec3|1.000|1.645|
+|Vec4 / Vec4|1.082|1.000|
+|Mat22 * Mat22|1.000|1.029|
+|Mat33 * Mat33|1.000|1.593|
+|Mat44 * Mat44|1.001|1.000|
+|Mat22 + Mat22|1.091|1.000|
+|Mat33 + Mat33|1.203|1.000|
+|Mat44 + Mat44|1.000|1.071|
+|Vec2 . Vec2|1.000|1.000|
+|Vec3 . Vec3|1.001|1.000|
+|Vec4 . Vec4|1.000|1.000|
+|Vec3 x Vec3|1.000|1.796|
+|norm(Vec2)|1.144|1.000|
+|norm(Vec3)|1.000|1.003|
+|norm(Vec4)|1.258|1.000|
+|normalize(Vec2)|1.143|1.000|
+|normalize(Vec3)|1.000|1.811|
+|normalize(Vec4)|1.200|1.000|
+|determinant(Mat22)|16.109|1.000|
+|determinant(Mat33)|15.376|1.000|
+|determinant(Mat44)|8.873|1.000|
+|inverse(Mat22)|8.161|1.000|
+|inverse(Mat33)|16.373|1.000|
+|inverse(Mat44)|23.551|1.000|
+|trace(Mat22)|1.000|1.000|
+|trace(Mat33)|1.000|1.164|
+|trace(Mat44)|1.001|1.000|
+|transpose(Mat22)|1.127|1.000|
+|transpose(Mat33)|1.000|1.013|
+|transpose(Mat44)|1.000|1.002|
+|Mat44^3|1.043|1.000|

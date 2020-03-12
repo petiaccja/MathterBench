@@ -6,8 +6,9 @@
 
 struct Result {
 	std::string name;
-	Timing timing;
+	Measurement timing;
 };
+
 
 template <class Wrapper>
 std::vector<Result> Config() {
@@ -73,64 +74,65 @@ std::vector<Result> Config() {
 	auto transpose22 = &Wrapper::template Transpose<typename Wrapper::Mat22>;
 	auto transpose33 = &Wrapper::template Transpose<typename Wrapper::Mat33>;
 	auto transpose44 = &Wrapper::template Transpose<typename Wrapper::Mat44>;
+	
+	auto pow3mat44 = &Wrapper::template Pow3M<typename Wrapper::Mat44>;
 
-
-	constexpr size_t SIZE_SIMPLE = 1000;
-	constexpr size_t REPS_SIMPLE = 1000;
 
 	std::vector<Result> results = {
-		{ "Vec2 * Vec2", BinaryKernel(mulVec2, initVec2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec3 * Vec3", BinaryKernel(mulVec3, initVec3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec4 * Vec4", BinaryKernel(mulVec4, initVec4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "Vec2 * Vec2", MeasureBinaryKernel(mulVec2, initVec2, initVec2) },
+		{ "Vec3 * Vec3", MeasureBinaryKernel(mulVec3, initVec3, initVec3) },
+		{ "Vec4 * Vec4", MeasureBinaryKernel(mulVec4, initVec4, initVec4) },
 
-		{ "Vec2 + Vec2", BinaryKernel(addVec2, initVec2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec3 + Vec3", BinaryKernel(addVec3, initVec3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec4 + Vec4", BinaryKernel(addVec4, initVec4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "Vec2 + Vec2", MeasureBinaryKernel(addVec2, initVec2, initVec2) },
+		{ "Vec3 + Vec3", MeasureBinaryKernel(addVec3, initVec3, initVec3) },
+		{ "Vec4 + Vec4", MeasureBinaryKernel(addVec4, initVec4, initVec4) },
 
-		{ "Vec2 / Vec2", BinaryKernel(divVec2, initVec2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec3 / Vec3", BinaryKernel(divVec3, initVec3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec4 / Vec4", BinaryKernel(divVec4, initVec4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
-
-
-		{ "Mat22 * Mat22", BinaryKernel(mulMat22, initMat22, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Mat33 * Mat33", BinaryKernel(mulMat33, initMat33, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Mat44 * Mat44", BinaryKernel(mulMat44, initMat44, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
-
-		{ "Mat22 + Mat22", BinaryKernel(addMat22, initMat22, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Mat33 + Mat33", BinaryKernel(addMat33, initMat33, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Mat44 + Mat44", BinaryKernel(addMat44, initMat44, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "Vec2 / Vec2", MeasureBinaryKernel(divVec2, initVec2, initVec2) },
+		{ "Vec3 / Vec3", MeasureBinaryKernel(divVec3, initVec3, initVec3) },
+		{ "Vec4 / Vec4", MeasureBinaryKernel(divVec4, initVec4, initVec4) },
 
 
-		{ "Vec2 . Vec2", BinaryKernel(dot2, initVec2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec3 . Vec3", BinaryKernel(dot3, initVec3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec4 . Vec4", BinaryKernel(dot4, initVec4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "Vec3 x Vec3", BinaryKernel(cross, initVec3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "Mat22 * Mat22", MeasureBinaryKernel(mulMat22, initMat22, initMat22) },
+		{ "Mat33 * Mat33", MeasureBinaryKernel(mulMat33, initMat33, initMat33) },
+		{ "Mat44 * Mat44", MeasureBinaryKernel(mulMat44, initMat44, initMat44) },
+
+		{ "Mat22 + Mat22", MeasureBinaryKernel(addMat22, initMat22, initMat22) },
+		{ "Mat33 + Mat33", MeasureBinaryKernel(addMat33, initMat33, initMat33) },
+		{ "Mat44 + Mat44", MeasureBinaryKernel(addMat44, initMat44, initMat44) },
 
 
-		{ "norm(Vec2)", UnaryKernel(norm2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "norm(Vec3)", UnaryKernel(norm3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "norm(Vec4)", UnaryKernel(norm4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
-
-		{ "normalize(Vec2)", UnaryKernel(normalize2, initVec2, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "normalize(Vec3)", UnaryKernel(normalize3, initVec3, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "normalize(Vec4)", UnaryKernel(normalize4, initVec4, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "Vec2 . Vec2", MeasureBinaryKernel(dot2, initVec2, initVec2) },
+		{ "Vec3 . Vec3", MeasureBinaryKernel(dot3, initVec3, initVec3) },
+		{ "Vec4 . Vec4", MeasureBinaryKernel(dot4, initVec4, initVec4) },
+		{ "Vec3 x Vec3", MeasureBinaryKernel(cross, initVec3, initVec3) },
 
 
-		{ "determinant(Mat22)", UnaryKernel(determinant2, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "determinant(Mat33)", UnaryKernel(determinant3, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "determinant(Mat44)", UnaryKernel(determinant4, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "norm(Vec2)", MeasureUnaryKernel(norm2, initVec2) },
+		{ "norm(Vec3)", MeasureUnaryKernel(norm3, initVec3) },
+		{ "norm(Vec4)", MeasureUnaryKernel(norm4, initVec4) },
 
-		{ "inverse(Mat22)", UnaryKernel(inverse2, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "inverse(Mat33)", UnaryKernel(inverse3, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "inverse(Mat44)", UnaryKernel(inverse4, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "normalize(Vec2)", MeasureUnaryKernel(normalize2, initVec2) },
+		{ "normalize(Vec3)", MeasureUnaryKernel(normalize3, initVec3) },
+		{ "normalize(Vec4)", MeasureUnaryKernel(normalize4, initVec4) },
 
-		{ "trace(Mat22)", UnaryKernel(trace2, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "trace(Mat33)", UnaryKernel(trace3, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "trace(Mat44)", UnaryKernel(trace4, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
 
-		{ "transpose(Mat22)", UnaryKernel(transpose22, initMat22, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "transpose(Mat33)", UnaryKernel(transpose33, initMat33, SIZE_SIMPLE, REPS_SIMPLE) },
-		{ "transpose(Mat44)", UnaryKernel(transpose44, initMat44, SIZE_SIMPLE, REPS_SIMPLE) },
+		{ "determinant(Mat22)", MeasureUnaryKernel(determinant2, initMat22) },
+		{ "determinant(Mat33)", MeasureUnaryKernel(determinant3, initMat33) },
+		{ "determinant(Mat44)", MeasureUnaryKernel(determinant4, initMat44) },
+
+		{ "inverse(Mat22)", MeasureUnaryKernel(inverse2, initMat22) },
+		{ "inverse(Mat33)", MeasureUnaryKernel(inverse3, initMat33) },
+		{ "inverse(Mat44)", MeasureUnaryKernel(inverse4, initMat44) },
+
+		{ "trace(Mat22)", MeasureUnaryKernel(trace2, initMat22) },
+		{ "trace(Mat33)", MeasureUnaryKernel(trace3, initMat33) },
+		{ "trace(Mat44)", MeasureUnaryKernel(trace4, initMat44) },
+
+		{ "transpose(Mat22)", MeasureUnaryKernel(transpose22, initMat22) },
+		{ "transpose(Mat33)", MeasureUnaryKernel(transpose33, initMat33) },
+		{ "transpose(Mat44)", MeasureUnaryKernel(transpose44, initMat44) },
+		
+		{ "Mat44^3", MeasureUnaryKernel(pow3mat44, initMat44) },
 	};
 
 	return results;
