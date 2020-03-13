@@ -77,6 +77,13 @@ public:
 	static Mat Pow3M(const Mat& arg);
 
 	//----------------------------------
+	// Extra
+	//----------------------------------
+	template <class Mat>
+	static void SingularValueDec(const Mat& arg);
+
+
+	//----------------------------------
 	// Utility
 	//----------------------------------
 	template <class Vec>
@@ -168,9 +175,14 @@ Mat GLMWrapper::Pow3M(const Mat& arg) {
 	return arg * arg * arg;
 }
 
+template <class Mat>
+void GLMWrapper::SingularValueDec(const Mat& arg) {
+	throw std::invalid_argument("use decomposition module of GLM");
+}
+
 template <class Vec>
 void GLMWrapper::RandomVec(Vec& vec) {
-	for (size_t i = 0; i < sizeof(vec)/sizeof(vec.x); ++i) {
+	for (size_t i = 0; i < sizeof(vec) / sizeof(vec.x); ++i) {
 		vec[i] = rng(rne);
 	}
 }
@@ -179,7 +191,7 @@ template <class Mat>
 void GLMWrapper::RandomMat(Mat& mat) {
 	using Scalar = std::decay_t<decltype(mat[0][0])>;
 	auto p = reinterpret_cast<Scalar*>(&mat);
-	for (size_t i = 0; i < sizeof(mat)/sizeof(Scalar); ++i) {		
-		p[i] = rng(rne);		
+	for (size_t i = 0; i < sizeof(mat) / sizeof(Scalar); ++i) {
+		p[i] = rng(rne);
 	}
 }

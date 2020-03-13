@@ -77,6 +77,13 @@ public:
 	static Mat Pow3M(const Mat& arg);
 
 	//----------------------------------
+	// Extra
+	//----------------------------------
+	template <class Mat>
+	static auto SingularValueDec(const Mat& arg);
+	
+
+	//----------------------------------
 	// Utility
 	//----------------------------------
 	template <class Vec>
@@ -166,6 +173,11 @@ auto MathterWrapper::Trace(const Mat& arg) {
 template <class Mat>
 Mat MathterWrapper::Pow3M(const Mat& arg) {
 	return arg * arg * arg;
+}
+
+template <class Mat>
+auto MathterWrapper::SingularValueDec(const Mat& arg) {
+	return DecomposeSVD(arg);
 }
 
 template <class Vec>

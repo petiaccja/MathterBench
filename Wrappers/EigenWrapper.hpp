@@ -83,6 +83,13 @@ public:
 	static Mat Pow3M(const Mat& arg);
 
 	//----------------------------------
+	// Extra
+	//----------------------------------
+	
+	template <class Mat>
+	static auto SingularValueDec(const Mat& arg);
+
+	//----------------------------------
 	// Utility
 	//----------------------------------
 	template <class Vec>
@@ -183,6 +190,11 @@ auto EigenWrapper::Trace(const Mat& arg) {
 template <class Mat>
 Mat EigenWrapper::Pow3M(const Mat& arg) {
 	return arg * arg * arg;
+}
+
+template <class Mat>
+auto EigenWrapper::SingularValueDec(const Mat& arg) {
+	return arg.jacobiSvd();
 }
 
 template <class Vec>

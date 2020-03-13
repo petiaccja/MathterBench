@@ -149,7 +149,7 @@ Measurement Measure(Func func) {
 		double timeInitial = std::chrono::nanoseconds(initial.timeTotal).count() / 1e9;
 		double scaling = timeSampleDesired / timeInitial;
 
-		const int size = std::min(1000, std::max(200, int(initialSize * scaling)));
+		const int size = std::min(1000, std::max(50, int(initialSize * scaling)));
 		const int rep = initialRep;
 
 		Timing sum = { 0ns, 0, 0, 0 };

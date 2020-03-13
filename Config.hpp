@@ -76,6 +76,8 @@ std::vector<Result> Config() {
 	auto transpose44 = &Wrapper::template Transpose<typename Wrapper::Mat44>;
 	
 	auto pow3mat44 = &Wrapper::template Pow3M<typename Wrapper::Mat44>;
+	
+	auto svd44 = &Wrapper::template SingularValueDec<typename Wrapper::Mat44>;
 
 
 	std::vector<Result> results = {
@@ -133,6 +135,8 @@ std::vector<Result> Config() {
 		{ "transpose(Mat44)", MeasureUnaryKernel(transpose44, initMat44) },
 		
 		{ "Mat44^3", MeasureUnaryKernel(pow3mat44, initMat44) },
+		
+		{ "SVD 4x4", MeasureUnaryKernel(svd44, initMat44) },
 	};
 
 	return results;
