@@ -2,9 +2,10 @@
 #include "Process.hpp"
 #include "Wrappers/EigenWrapper.hpp"
 #include "Wrappers/MathterWrapper.hpp"
+#include "Wrappers/GLMWrapper.hpp"
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
 
 std::string MakeCSV(const std::vector<std::string>& libNames, const std::vector<std::vector<Result>>& results) {
@@ -22,7 +23,13 @@ std::string MakeCSV(const std::vector<std::string>& libNames, const std::vector<
 	for (size_t classIndex = 0; classIndex < numClasses; ++classIndex) {
 		csvText << results[0][classIndex].name;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			csvText << "," << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.minCyclesPerOp;
+			double time = results[libIndex][classIndex].timing.minCyclesPerOp;
+			if (time != 0) {
+				csvText << "," << std::fixed << std::setprecision(3) << time;
+			}
+			else {
+				csvText << "," << "N/A";
+			}
 		}
 		csvText << std::endl;
 	}
@@ -51,7 +58,13 @@ std::string MakeMarkdown(const std::vector<std::string>& libNames, const std::ve
 	for (size_t classIndex = 0; classIndex < numClasses; ++classIndex) {
 		markdownText << "|" << results[0][classIndex].name;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
-			markdownText << "|" << std::fixed << std::setprecision(3) << results[libIndex][classIndex].timing.minCyclesPerOp;
+			double time = results[libIndex][classIndex].timing.minCyclesPerOp;
+			if (time != 0) {
+				markdownText << "|" << std::fixed << std::setprecision(3) << time;
+			}
+			else {
+				markdownText << "|" << "N/A";
+			}
 		}
 		markdownText << "|" << std::endl;
 	}
@@ -68,6 +81,9 @@ std::vector<std::vector<Result>> NormalizeTimes(std::vector<std::vector<Result>>
 		double minCycles = 1e+100;
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
 			double cycles = results[libIndex][classIndex].timing.minCyclesPerOp;
+			if (cycles == 0) {
+				cycles = 1e+100;
+			}
 			minCycles = std::min(cycles, minCycles);
 		}
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
@@ -86,25 +102,26 @@ int main() {
 	SetAffinity();
 	std::cout << "\n\n";
 	;
-	std::vector<std::vector<Result>> results(2);
+	std::vector<std::vector<Result>> results(3);
 
 	std::cout << "[[ Mathter... ]]";
 	results[0] = Config<MathterWrapper>();
 	std::cout << std::endl;
 
-	for (auto v : results[0]) {
-		std::cout << v.timing.numTimesRun << ", " << v.timing.size << ", " << v.timing.rep << "\n";
-	}
-	std::cout << std::endl;
-
 	std::cout << "[[ Eigen... ]]";
 	results[1] = Config<EigenWrapper>();
-	std::cout << std::endl << "\n";
+	std::cout << std::endl;
+
+	std::cout << "[[ GLM... ]]";
+	results[2] = Config<GLMWrapper>();
+	std::cout << std::endl
+			  << "\n";
 
 	// Make a markdown
 	std::vector<std::string> libNames = {
 		"Mathter",
 		"Eigen",
+		"GLM",
 	};
 	std::cout << MakeMarkdown(libNames, results) << std::endl;
 

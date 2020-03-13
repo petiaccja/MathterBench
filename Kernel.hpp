@@ -137,56 +137,61 @@ Timing UnaryKernel(Result (*unaryOp)(const Arg&), const Init& init, size_t size,
 
 template <class Func>
 Measurement Measure(Func func) {
-	using namespace std::chrono_literals;
-	
-	const int initialSize = 750;
-	const int initialRep = 100;
-	int samplesDesired = 500;
-	double timeTotalDesired = 0.10f; // 100 ms
-	double timeSampleDesired = timeTotalDesired / samplesDesired;
-	Timing initial = func(initialSize, initialRep);
-	double timeInitial = std::chrono::nanoseconds(initial.timeTotal).count() / 1e9;
-	double scaling = timeSampleDesired / timeInitial;
+	try {
+		using namespace std::chrono_literals;
 
-	const int size = std::min(1000, std::max(200, int(initialSize * scaling)));
-	const int rep = initialRep;
+		const int initialSize = 750;
+		const int initialRep = 100;
+		int samplesDesired = 500;
+		double timeTotalDesired = 0.10f; // 100 ms
+		double timeSampleDesired = timeTotalDesired / samplesDesired;
+		Timing initial = func(initialSize, initialRep);
+		double timeInitial = std::chrono::nanoseconds(initial.timeTotal).count() / 1e9;
+		double scaling = timeSampleDesired / timeInitial;
 
-	Timing sum = { 0ns, 0, 0, 0 };
-	Timing min = { 100000000000000000ns, 1000000000000000000ull, 1e20, 1e20 };
-	Timing max = { 0ns, 0, 0, 0 };
-	for (int i = 0; i < samplesDesired; ++i) {
-		Timing timing = func(size, rep);
-		
-		sum.timeTotal += timing.timeTotal;
-		sum.cyclesTotal += timing.cyclesTotal;
-		sum.cyclesPerOp += timing.cyclesPerOp;
-		sum.timePerOpNs += timing.timePerOpNs;
+		const int size = std::min(1000, std::max(200, int(initialSize * scaling)));
+		const int rep = initialRep;
 
-		min.timeTotal   = std::min(min.timeTotal   , timing.timeTotal);
-		min.cyclesTotal = std::min(min.cyclesTotal , timing.cyclesTotal);
-		min.cyclesPerOp = std::min(min.cyclesPerOp , timing.cyclesPerOp);
-		min.timePerOpNs = std::min(min.timePerOpNs , timing.timePerOpNs);
-					     
-		max.timeTotal   = std::max(max.timeTotal   , timing.timeTotal);
-		max.cyclesTotal = std::max(max.cyclesTotal , timing.cyclesTotal);
-		max.cyclesPerOp = std::max(max.cyclesPerOp , timing.cyclesPerOp);
-		max.timePerOpNs = std::max(max.timePerOpNs , timing.timePerOpNs);
+		Timing sum = { 0ns, 0, 0, 0 };
+		Timing min = { 100000000000000000ns, 1000000000000000000ull, 1e20, 1e20 };
+		Timing max = { 0ns, 0, 0, 0 };
+		for (int i = 0; i < samplesDesired; ++i) {
+			Timing timing = func(size, rep);
+
+			sum.timeTotal += timing.timeTotal;
+			sum.cyclesTotal += timing.cyclesTotal;
+			sum.cyclesPerOp += timing.cyclesPerOp;
+			sum.timePerOpNs += timing.timePerOpNs;
+
+			min.timeTotal = std::min(min.timeTotal, timing.timeTotal);
+			min.cyclesTotal = std::min(min.cyclesTotal, timing.cyclesTotal);
+			min.cyclesPerOp = std::min(min.cyclesPerOp, timing.cyclesPerOp);
+			min.timePerOpNs = std::min(min.timePerOpNs, timing.timePerOpNs);
+
+			max.timeTotal = std::max(max.timeTotal, timing.timeTotal);
+			max.cyclesTotal = std::max(max.cyclesTotal, timing.cyclesTotal);
+			max.cyclesPerOp = std::max(max.cyclesPerOp, timing.cyclesPerOp);
+			max.timePerOpNs = std::max(max.timePerOpNs, timing.timePerOpNs);
+		}
+
+		Measurement meas;
+		meas.minCyclesPerOp = min.cyclesPerOp;
+		meas.maxCyclesPerOp = max.cyclesPerOp;
+		meas.avgCyclesPerOp = sum.cyclesPerOp / samplesDesired;
+
+		meas.minTimePerOpNs = min.timePerOpNs;
+		meas.maxTimePerOpNs = max.timePerOpNs;
+		meas.avgTimePerOpNs = sum.timePerOpNs / samplesDesired;
+
+		meas.numTimesRun = samplesDesired;
+		meas.rep = rep;
+		meas.size = size;
+
+		return meas;
 	}
-
-	Measurement meas;
-	meas.minCyclesPerOp = min.cyclesPerOp;
-	meas.maxCyclesPerOp = max.cyclesPerOp;
-	meas.avgCyclesPerOp = sum.cyclesPerOp / samplesDesired;
-
-	meas.minTimePerOpNs = min.timePerOpNs;
-	meas.maxTimePerOpNs = max.timePerOpNs;
-	meas.avgTimePerOpNs = sum.timePerOpNs / samplesDesired;
-
-	meas.numTimesRun = samplesDesired;
-	meas.rep = rep;
-	meas.size = size;
-
-	return meas;
+	catch (...) {
+		return Measurement{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	}
 }
 
 
