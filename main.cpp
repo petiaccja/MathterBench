@@ -1,8 +1,8 @@
 #include "Config.hpp"
 #include "Process.hpp"
 #include "Wrappers/EigenWrapper.hpp"
-#include "Wrappers/MathterWrapper.hpp"
 #include "Wrappers/GLMWrapper.hpp"
+#include "Wrappers/MathterWrapper.hpp"
 
 #include <iomanip>
 #include <iostream>
@@ -28,7 +28,8 @@ std::string MakeCSV(const std::vector<std::string>& libNames, const std::vector<
 				csvText << "," << std::fixed << std::setprecision(3) << time;
 			}
 			else {
-				csvText << "," << "N/A";
+				csvText << ","
+						<< "N/A";
 			}
 		}
 		csvText << std::endl;
@@ -38,7 +39,7 @@ std::string MakeCSV(const std::vector<std::string>& libNames, const std::vector<
 }
 
 
-std::string MakeMarkdown(const std::vector<std::string>& libNames, const std::vector<std::vector<Result>>& results) {
+std::string MakeMarkdown(const std::vector<std::string>& libNames, const std::vector<std::vector<Result>>& results, bool tagBest = false) {
 	const size_t numClasses = results[0].size();
 	const size_t numLibraries = results.size();
 
@@ -60,10 +61,17 @@ std::string MakeMarkdown(const std::vector<std::string>& libNames, const std::ve
 		for (size_t libIndex = 0; libIndex < numLibraries; ++libIndex) {
 			double time = results[libIndex][classIndex].timing.minCyclesPerOp;
 			if (time != 0) {
-				markdownText << "|" << std::fixed << std::setprecision(3) << time;
+				markdownText << "|";
+				if (tagBest && 1.0 <= time && time < 1.003) {
+					markdownText << "**";
+				}
+				markdownText << std::fixed << std::setprecision(3) << time;
+				if (tagBest && 1.0 <= time && time < 1.003) {
+					markdownText << "**";
+				}
 			}
 			else {
-				markdownText << "|" << "N/A";
+				markdownText << "|N/A";
 			}
 		}
 		markdownText << "|" << std::endl;

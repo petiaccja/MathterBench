@@ -43,6 +43,11 @@ std::vector<Result> Config() {
 	auto addMat33 = &Wrapper::template AddMM<typename Wrapper::Mat33>;
 	auto addMat44 = &Wrapper::template AddMM<typename Wrapper::Mat44>;
 
+	// Test: vector-matrix
+	auto mulVec2Mat22 = &Wrapper::template MulVM<typename Wrapper::Vec2, typename Wrapper::Mat22>;
+	auto mulVec3Mat33 = &Wrapper::template MulVM<typename Wrapper::Vec3, typename Wrapper::Mat33>;
+	auto mulVec4Mat44 = &Wrapper::template MulVM<typename Wrapper::Vec4, typename Wrapper::Mat44>;	
+
 	// Test: dot & cross
 	auto dot2 = &Wrapper::template Dot<typename Wrapper::Vec2>;
 	auto dot3 = &Wrapper::template Dot<typename Wrapper::Vec3>;
@@ -101,6 +106,11 @@ std::vector<Result> Config() {
 		{ "Mat22 + Mat22", MeasureBinaryKernel(addMat22, initMat22, initMat22) },
 		{ "Mat33 + Mat33", MeasureBinaryKernel(addMat33, initMat33, initMat33) },
 		{ "Mat44 + Mat44", MeasureBinaryKernel(addMat44, initMat44, initMat44) },
+		
+
+		{ "Vec2 * Mat22", MeasureBinaryKernel(mulVec2Mat22, initVec2, initMat22) },
+		{ "Vec3 * Mat33", MeasureBinaryKernel(mulVec3Mat33, initVec3, initMat33) },
+		{ "Vec4 * Mat44", MeasureBinaryKernel(mulVec4Mat44, initVec4, initMat44) },
 
 
 		{ "Vec2 . Vec2", MeasureBinaryKernel(dot2, initVec2, initVec2) },

@@ -81,7 +81,12 @@ public:
 	//----------------------------------
 	template <class Mat>
 	static auto SingularValueDec(const Mat& arg);
-	
+
+	//----------------------------------
+	// Vector-matrix multiplication
+	//----------------------------------
+	template <class Vec, class Mat>
+	static auto MulVM(const Vec& v, const Mat& m);
 
 	//----------------------------------
 	// Utility
@@ -178,6 +183,11 @@ Mat MathterWrapper::Pow3M(const Mat& arg) {
 template <class Mat>
 auto MathterWrapper::SingularValueDec(const Mat& arg) {
 	return DecomposeSVD(arg);
+}
+
+template <class Vec, class Mat>
+auto MathterWrapper::MulVM(const Vec& v, const Mat& m) {
+	return v * m;
 }
 
 template <class Vec>

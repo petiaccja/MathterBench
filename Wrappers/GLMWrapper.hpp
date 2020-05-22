@@ -77,6 +77,12 @@ public:
 	static Mat Pow3M(const Mat& arg);
 
 	//----------------------------------
+	// Vector-matrix multiplication
+	//----------------------------------
+	template <class Vec, class Mat>
+	static auto MulVM(const Vec& v, const Mat& m);
+	
+	//----------------------------------
 	// Extra
 	//----------------------------------
 	template <class Mat>
@@ -173,6 +179,11 @@ auto GLMWrapper::Trace(const Mat& arg) {
 template <class Mat>
 Mat GLMWrapper::Pow3M(const Mat& arg) {
 	return arg * arg * arg;
+}
+
+template <class Vec, class Mat>
+auto GLMWrapper::MulVM(const Vec& v, const Mat& m) {
+	return m * v;
 }
 
 template <class Mat>

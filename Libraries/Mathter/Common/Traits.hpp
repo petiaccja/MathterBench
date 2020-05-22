@@ -8,6 +8,7 @@
 #include "Definitions.hpp"
 #include <cmath>
 #include <type_traits>
+#include <utility>
 
 
 namespace mathter::traits {
@@ -54,6 +55,12 @@ namespace mathter::traits {
 	template <class MatrixT>
 	class MatrixTraits : public MatrixTraitsHelper<typename std::decay<MatrixT>::type> {};
 
+
+	template <eMatrixOrder Order>
+	class OppositeOrder {
+	public:
+		static constexpr eMatrixOrder value = (Order == eMatrixOrder::FOLLOW_VECTOR ? eMatrixOrder::PRECEDE_VECTOR : eMatrixOrder::FOLLOW_VECTOR);
+	};
 
 	template <eMatrixLayout Layout>
 	class OppositeLayout {
